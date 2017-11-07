@@ -33,6 +33,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.List;
 
 //import android.R;
 
@@ -578,6 +579,14 @@ public class TCPlugin extends CordovaPlugin implements DeviceListener,
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		// Shutdown twilio because it keeps running otherwise and callback stopped being fired!
+		// Simply calling shutdown() crashes the app when exited if setup() is called multiple times in the app.
+		List<Device> devices = Twilio.listDevices();
+	        for (int i = 0; i < devices.size(); i++) {
+        	    devices.get(i).release();
+	        }
+		Twilio.shutdown();
+		
 		//lifecycle events
 		LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(cordova
 				.getActivity());
